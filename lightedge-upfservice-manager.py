@@ -21,4 +21,4 @@ from empower_core.launcher import main
 
 
 if __name__ == '__main__':
-    main(config="/etc/lightedge")
+    main(config="/etc/lightedge-upfservice-manager")

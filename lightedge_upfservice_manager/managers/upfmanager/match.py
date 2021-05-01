@@ -127,13 +127,11 @@ class Match(MongoModel):
 
         # out = "%s/%u:%u (prot: %u): -> %s:%u (uuid: %s)" % (self.dst_ip,
         out = "%s/%u:%u (prot: %u): -> %s:%u" % (self.dst_ip,
-                                                   self.netmask,
-                                                   self.dst_port,
-                                                   self.ip_proto_num,
-                                                   self.new_dst_ip,
-                                                   self.new_dst_port,
-                                                #    self.uuid,
-                                                   )
+                                                 self.netmask,
+                                                 self.dst_port,
+                                                 self.ip_proto_num,
+                                                 self.new_dst_ip,
+                                                 self.new_dst_port)
 
         return out
 

@@ -11,7 +11,7 @@
 
   <link rel="shortcut icon" href="/static/img/favicon.ico">
 
-  <title>UPFService - Dashboard</title>
+  <title>UPF Service Manager</title>
 
   <!-- Custom fonts for this template-->
   <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -48,8 +48,8 @@
       <!-- Nav Item - Charts -->
       <li class="nav-item">
         <a class="nav-link" href="/">
-          <i class="fas fa-fw fa-tachometer-alt fa-x1"></i>
-          <span>Dashboard</span>
+          <i class="fas fa-fw fa-tachometer-alt fa-x"></i>
+          <span>UPF Service Manager</span>
         </a>
       </li>
 
@@ -57,21 +57,22 @@
       <hr class="sidebar-divider">
 
       <li class="nav-item">
-        <a id="upfmanager" class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse_upfmanager" aria-expanded="true" aria-controls="collapse_upfmanager">
-          <i class="fas fa-fw fa-clipboard"></i>
-          <span>UPF MANAGER</span>
+        <a class="nav-link" href="/matchmap.html">
+          <i class="fas fa-fw fa-route"></i>
+          <span>Match Maps</span>
         </a>
-        <div id="collapse_upfmanager" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <!-- Nav Item - Match Map -->
-            <a id="matchmap" class="collapse-item" href="/matchmap.html"><i class="fas fa-fw fa-route mr-2"></i>Match Maps</a>
-            <!-- Nav Item - UE Map -->
-            <a id="uemap" class="collapse-item" href="/uemap.html"><i class="fas fa-fw fa-mobile-alt mr-2"></i>UE Maps</a>
-            <!-- Nav Item - UPF Clients -->
-            <a id="upfclient" class="collapse-item" href="/upfclients.html"><i class="fas fa-fw fa-project-diagram mr-2"></i>UPF Clients</a>
-          </div>
-        </div>
+        <a class="nav-link" href="/uemap.html">
+          <i class="fas fa-fw fa-mobile-alt"></i>
+          <span>UE Maps</span>
+        </a>
+        <a class="nav-link" href="/upfclients.html">
+          <i class="fas fa-fw fa-project-diagram"></i>
+          <span>UPF Clients</span>
+        </a>
       </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
 
       <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">

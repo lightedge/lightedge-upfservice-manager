@@ -18,9 +18,9 @@ import random
 
 from pprint import pformat
 
-from lightedge.managers.upfmanager.match import Match
+from lightedge_upfservice_manager.managers.upfmanager.match import Match
 
-from lightedge.managers.upfmanager.dictionarywrapper import *
+from lightedge_upfservice_manager.managers.upfmanager.dictionarywrapper import *
 
 MATCH_OP__ADD = 'add'
 MATCH_OP__DELETE = 'delete'
@@ -29,16 +29,16 @@ class MatchOp():
     def __init__(self, data, op=MATCH_OP__ADD):
         self.data = data
         self.op = op
-        
 
-STATUS__NOT_INITIALIZED = "NOT_INITIALIZED"    
+
+STATUS__NOT_INITIALIZED = "NOT_INITIALIZED"
 STATUS__INITIALIZING = "INITIALIZING"
 STATUS__INITIALIZED = "INITIALIZED"
 
 UPF_CLIENT_HANDLER_LOG_TAG = "UPF_CH__"
 
-STATUS_LIST = [ STATUS__NOT_INITIALIZED, 
-                STATUS__INITIALIZING, 
+STATUS_LIST = [ STATUS__NOT_INITIALIZED,
+                STATUS__INITIALIZING,
                 STATUS__INITIALIZED]
 
 QUEUE_CHECK_TIME_INTERVAL = 5.0
@@ -64,7 +64,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
             # self.log.debug("{0} = {1}".format(key, value))
 
         self.counter = 0
-        
+
         self._matchop_queue = Queue()
 
         self._queue_check_timer = None
@@ -125,9 +125,9 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
 
         if self._queue_check_timer is not None:
             self._queue_check_timer.cancel()
-        self._queue_check_timer = Timer(QUEUE_CHECK_TIME_INTERVAL, 
+        self._queue_check_timer = Timer(QUEUE_CHECK_TIME_INTERVAL,
                                         self.queue_check)
-        self._queue_check_timer.start() 
+        self._queue_check_timer.start()
         # self.log.debug("queue check timer started")
 
     def cancel_queue_check_timer(self):
@@ -149,7 +149,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
             return
         # else:
         #     self.log.info("LAST HELLO TIME OK: %i" % self.get_params__last_hello_time())
-        self.cancel_queue_check_timer()  
+        self.cancel_queue_check_timer()
         if self.is_matchop_ongoing():
             self.log.debug(
                 "ONGOING MATCH_OP (%s), queue_check postponed",
@@ -168,8 +168,8 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
             tb = traceback.format_exc()
             ident = threading.current_thread().name
             self.log.error("\n\n\nERROR!!!!!\n%s\n%s",tb, ident)
-            self.cancel_queue_check_timer() 
-            self.start_queue_check_timer() 
+            self.cancel_queue_check_timer()
+            self.start_queue_check_timer()
 
     def push_matchop(self, op):
         # self.log.info("Before PUSH qsize: %i", self._matchop_queue.qsize())
@@ -251,7 +251,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
             old_status = self.get_params__status()
             self._status = status
             self.log.info("Status change: from %s to %s", old_status, status)
-    
+
     def set_params__status__NOT_INITIALIZED(self):
         return self.set_params__status(STATUS__NOT_INITIALIZED)
 
@@ -269,7 +269,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
 
     def is_status__INITIALIZED(self):
         return self.get_params__status() == STATUS__INITIALIZED
-    
+
     def get_params__status(self):
         return self._status
 
@@ -306,7 +306,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
         return False
 
     def check_params__last_hello_time(self):
-        delta  = time.time() - self.get_params__last_hello_time() 
+        delta  = time.time() - self.get_params__last_hello_time()
         max_delay = self.get_params__hello_every() * self.HELLO_MSG__MAX_EVERY_MISSED
         if delta > max_delay:
             return False
@@ -321,7 +321,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
     def set_params__ongoing_matchop(self, matchop=None):
         self.log.debug("ONGOING MATCHOP set to: %s", matchop)
         self._ongoing_matchop = matchop
-    
+
     def get_params__ongoing_matchop(self):
         return self._ongoing_matchop
 
@@ -337,16 +337,16 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                 return False
         self.log.warning("check_matchop_uuid whit NO ONGOING MATCHOP")
         return True
-    
+
     def set_log(self):
-        
+
         # if name is not None:
         #     self.log = logging.getLogger(name)
         #     return
         self.log = logging.getLogger(UPF_CLIENT_HANDLER_LOG_TAG + self.name)
         logging.getLogger("asyncio").setLevel(logging.WARNING)
         self.log.setLevel(logging.INFO)
-    
+
     def open(self):
         # if not hasattr(self, 'LOG'):
         #     self.set_log()
@@ -355,7 +355,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                       self.request.connection.context.address[0],
                       self.request.connection.context.address[1])
                       #  self.stream.socket.getpeername()[1])
-        
+
         # self.trigger_init()
 
     def on_message(self, message):
@@ -366,7 +366,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
         #     self.close()
         try:
             msg = DictionaryWrapperFactory.detect_msg(json.loads(message))
-            # self.log.debug("New message formatted: \n%s", 
+            # self.log.debug("New message formatted: \n%s",
             #                pformat(msg.get_dict()))
             # self.log.debug( msg )
             if msg.validate():
@@ -456,11 +456,11 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
             msg_handler = self.get_handler_by_msg_type(msg_type)
             if not self.is_valid_handler(msg_handler):
                 raise ValueError("Invalid Handler")
-            
+
             msg_handler(msg)
 
         except ValueError as e:
-            self.log.error(e) 
+            self.log.error(e)
 
     def _handle__hello(self, msg):
         self.log.debug("Handling: HELLO msg")
@@ -527,7 +527,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                     #     self.get_params__ongoing_matchop(),
                     #     reason)
                     match_uuid = self.get_params__ongoing_matchop()["match_uuid"]
-                    
+
                     index = self.delete_local_match(match_uuid)
 
                     if match_uuid == None:
@@ -560,7 +560,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                     match_index = match_data["index"]
                     match = Match()
                     match.from_dict(
-                        match_index, 
+                        match_index,
                         match_data)
 
                     self.add_local_match(match_index, match)
@@ -583,7 +583,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                     match_index = match_data["index"]
                     match = Match()
                     match.from_dict(
-                        match_index, 
+                        match_index,
                         match_data)
                     self.log.warning(
                         "FAILED ADD (%i) at %i of match %s with reason: %s",
@@ -594,7 +594,7 @@ class UPFServiceControllerWSHandler(tornado.websocket.WebSocketHandler):
                     self.set_params__ongoing_matchop()
                     self.queue_check()
                     # self.close()
-        
+
 
 
     def _handle__ue_map(self, msg):

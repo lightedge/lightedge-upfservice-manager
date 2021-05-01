@@ -11,16 +11,16 @@ import copy
 from threading import Lock
 from threading import Timer
 
-from lightedge.managers.upfmanager.match import Match
+from lightedge_upfservice_manager.managers.upfmanager.match import Match
 
-from lightedge.managers.upfmanager.matchmaphandler import MatchMapHandler
-from lightedge.managers.upfmanager.uemaphandler import UEMapHandler
-from lightedge.managers.upfmanager.upfclienthandler import UPFClientHandler
+from lightedge_upfservice_manager.managers.upfmanager.matchmaphandler import MatchMapHandler
+from lightedge_upfservice_manager.managers.upfmanager.uemaphandler import UEMapHandler
+from lightedge_upfservice_manager.managers.upfmanager.upfclienthandler import UPFClientHandler
 
-from lightedge.managers.upfmanager.dictionarywrapper import *
+from lightedge_upfservice_manager.managers.upfmanager.dictionarywrapper import *
 
 from pymodm.errors import ValidationError
-from lightedge.managers.upfmanager.upfservicecontrollerwshandler import UPFServiceControllerWSHandler
+from lightedge_upfservice_manager.managers.upfmanager.upfservicecontrollerwshandler import UPFServiceControllerWSHandler
 
 from pprint import pformat
 
@@ -77,13 +77,13 @@ class MatchList(list):
             self.insert(match.index, match)
             # match = match.to_dict()
             # print ("MATCH: %s", match)
-        
+
 class UPFServiceControllerManager(EService):
     """Service exposing the UPF Service Controller
 
     Parameters:
         host: the name/IP address of the hosting device
-        port: the port on which the Controller should listen for websocket 
+        port: the port on which the Controller should listen for websocket
             communication (optional, default: 7000)
     """
 
@@ -188,14 +188,14 @@ class UPFServiceControllerManager(EService):
                 self.log.warning("KEEPING old UPF Client id %s",
                                  client_id)
             return False
-        
+
         self.upf_client_handlers[client_id] = client
         self.log.info("ADDED NEW UPF Client Handler with id %s", client_id)
-        self.log.info("UPF Client Handlers: \n%s", 
+        self.log.info("UPF Client Handlers: \n%s",
                       pformat(self.upf_client_handlers))
         return True
 
-    def remove_upf_client(self, client=None, client_id=None, 
+    def remove_upf_client(self, client=None, client_id=None,
                           missing_tolerant=True):
         if client is not None:
             client_id = client.get_params__id()
@@ -204,9 +204,9 @@ class UPFServiceControllerManager(EService):
                              client_id)
             if missing_tolerant:
                 return True
-            
+
             return False
-        
+
         del self.upf_client_handlers[client_id]
         self.log.info("UPF Client Handlers: \n%s", self.upf_client_handlers)
         return True
@@ -214,7 +214,7 @@ class UPFServiceControllerManager(EService):
     def rest__get_matchmap(self, match_index):
 
         # self.log.debug("rest__get_matchmap")
-        
+
         self.upf_request_validator.get_matchmap(match_index)
 
         if match_index != -1:
@@ -235,7 +235,7 @@ class UPFServiceControllerManager(EService):
         result["missing_match"] = False
         result["extra_match"] = False
         result["messed_match"] = False
-        
+
         for key in self.upf_client_handlers:
             local_matches = self.upf_client_handlers[key]._local_matches
             if (len(main_matches) > len(local_matches)):
@@ -247,7 +247,7 @@ class UPFServiceControllerManager(EService):
                     # self.log.info(index)
                     if main_matches[index] != local_matches[index]:
                         result["messed_match"] = True
-        
+
         return result
 
 
@@ -261,7 +261,7 @@ class UPFServiceControllerManager(EService):
         #     match.from_dict(match_index, data)
 
         self.upf_request_validator.post_matchmap(match_index, data)
-        
+
         match = Match()
         match.from_dict(match_index, data)
 
@@ -279,7 +279,7 @@ class UPFServiceControllerManager(EService):
         self.send_matchop_to_all_clients(MSG_TYPE__MATCH_ADD,
                                          match_index,
                                          data)
-        
+
 
     def rest__del_matchmap(self, match_index):
         """Delete a match rule."""
@@ -305,7 +305,7 @@ class UPFServiceControllerManager(EService):
         #                                      MATCH_DELETE_MSG_VALUE__DELETE_ALL)
 
         if match_index >= 0:
-            
+
             self.send_matchop_to_all_clients(MSG_TYPE__MATCH_DELETE,
                                                 match_index)
             self.matches.pop(match_index)
@@ -313,7 +313,7 @@ class UPFServiceControllerManager(EService):
             self.matches.clear()
             self.send_matchop_to_all_clients(MSG_TYPE__MATCH_DELETE,
                                             MATCH_DELETE_MSG_VALUE__DELETE_ALL)
-            
+
     def rest__get_uemap(self, ue_ip=None):
         """Return UE Map."""
 
@@ -332,7 +332,7 @@ class UPFServiceControllerManager(EService):
         """Return UPF Clients"""
 
         main_matches = ""
-        
+
         for i in range(len(self.matches)):
             main_matches = main_matches + self.matches[i].to_str_with_desc()
 
@@ -348,7 +348,7 @@ class UPFServiceControllerManager(EService):
             if main_matches == upf_clients[key]["stringified"]:
                 upf_clients[key]["status"] = "consistent"
             del upf_clients[key]["stringified"]
-            
+
         return upf_clients
 
     def send_matchop_to_all_clients(self, request_type, index=None, data={}):
@@ -363,7 +363,7 @@ class UPFServiceControllerManager(EService):
         for key in self.upf_client_handlers:
             client = self.upf_client_handlers[key]
             self.log.debug(
-                "MATCH REQUEST (type=%s) ADDED to Client Handler %s OP Queue", 
+                "MATCH REQUEST (type=%s) ADDED to Client Handler %s OP Queue",
                 request_type,
                 str(client.get_params__id()))
             client.push_matchop(copy.deepcopy(match_op))
@@ -391,9 +391,9 @@ class UPFServiceControllerManager(EService):
                 # index = MATCH_DELETE_MSG_VALUE__DELETE_ALL
             match_op["match_uuid"] = uuid
 
-        return match_op    
+        return match_op
 
-    
+
 
     def trigger_upf_client_init(self, client):
         if client is None:
@@ -435,12 +435,12 @@ class UPFServiceControllerManager(EService):
 
     def test_match_op(self):
         self.log.info("\n\ntest_match_op START\n")
-        
+
         # self.matches.refresh()
 
         # self.del_matchmap(-1)
 
-        data = {     
+        data = {
             "ip_proto_num": 6,
             "desc": "This is just a test 0!",
             "dst_ip":
@@ -453,7 +453,7 @@ class UPFServiceControllerManager(EService):
 
         # self.add_matchmap(0,data)
 
-        data = {     
+        data = {
             "ip_proto_num": 6,
             "desc": "This is just a test 1!",
             "dst_ip":
@@ -466,7 +466,7 @@ class UPFServiceControllerManager(EService):
 
         # self.add_matchmap(1,data)
 
-        data = {     
+        data = {
             "ip_proto_num": 6,
             "desc": "This is just a test 2!",
             "dst_ip":
@@ -479,7 +479,7 @@ class UPFServiceControllerManager(EService):
 
         # self.add_matchmap(0,data)
 
-        data = {     
+        data = {
             "ip_proto_num": 6,
             "desc": "This is just a test 3!",
             "dst_ip":
@@ -491,26 +491,26 @@ class UPFServiceControllerManager(EService):
         }
 
         # self.add_matchmap(0,data)
-        
-        data = {    
-            "desc": "First",   
-            "ip_proto_num": 1,    
-            "dst_ip": "2.2.2.2",    
-            "netmask": 32,    
-            "dst_port": 0,    
-            "new_dst_ip": "192.168.0.1",    
+
+        data = {
+            "desc": "First",
+            "ip_proto_num": 1,
+            "dst_ip": "2.2.2.2",
+            "netmask": 32,
+            "dst_port": 0,
+            "new_dst_ip": "192.168.0.1",
             "new_dst_port": 0
         }
 
         self.add_matchmap(0,data)
 
-        data = {    
-            "desc": "Second",   
-            "ip_proto_num": 1,    
-            "dst_ip": "2.2.2.3",    
-            "netmask": 32,    
-            "dst_port": 0,    
-            "new_dst_ip": "192.168.0.1",    
+        data = {
+            "desc": "Second",
+            "ip_proto_num": 1,
+            "dst_ip": "2.2.2.3",
+            "netmask": 32,
+            "dst_port": 0,
+            "new_dst_ip": "192.168.0.1",
             "new_dst_port": 0
         }
 
@@ -539,12 +539,12 @@ class UPFRestRequestValidator():
 
         if match_index == -1: # get ALL matches
             return True
-        
+
         if match_index <= -1: # Invalid NEGATIVE Index
             message = "Invalid match index '%i': must be greater than 0"\
                         % (match_index + 1)
             raise ValueError(message)
-        
+
         matches_length = len(self.match_list)
 
         if matches_length == 0: # VOID match list
@@ -556,7 +556,7 @@ class UPFRestRequestValidator():
             message = "Invalid match index '%i': acceptable range is [1, %i]"\
                         % (match_index + 1, matches_length )
             raise ValueError(message)
-        
+
         return True
 
     def post_matchmap(self, match_index, match_data):
@@ -579,7 +579,7 @@ class UPFRestRequestValidator():
                 message = "Invalid match index '%i': acceptable range is [1, %i]"\
                           % (match_index , (matches_length + 1) )
                 raise ValueError(message)
-        
+
         if (int(match_data["dst_port"]) < 0 or int(match_data["new_dst_port"]) < 0):
             raise ValueError("dst_port and new_dst_port shall be both non-negative")
 
@@ -589,7 +589,7 @@ class UPFRestRequestValidator():
             match.from_dict(match_index, match_data)
         except Exception as e:
             raise ValueError(str(e))
-        
+
         if (match.dst_port != 0 and match.new_dst_port == 0) \
             or (match.dst_port == 0 and match.new_dst_port != 0):
             raise ValueError("When rewriting, dst_port and new_dst_port shall be both 0 or !=0")
@@ -603,7 +603,7 @@ class UPFRestRequestValidator():
             if match == stored_match:
                 message = "New match is already present in match table at index %i"\
                             % (stored_match.index + 1)
-                raise ValueError(message)  
+                raise ValueError(message)
 
         return True
 
